@@ -162,17 +162,20 @@ class EnrollmentCreate(BaseModel):
 class LessonRecordOut(BaseModel):
     id: int
     enrollment_id: int
+    substitute_request_id: Optional[int] = None
     lesson_date: date
     status: str
     content: Optional[str] = None
     homework: Optional[str] = None
     created_at: datetime
     enrollment: Optional[EnrollmentOut] = None
+    substitute_request: Optional[SubstituteRequestOut] = None
     class Config:
         from_attributes = True
 
 class LessonRecordCreate(BaseModel):
     enrollment_id: int
+    substitute_request_id: Optional[int] = None
     lesson_date: date
     status: str = "attended"
     content: Optional[str] = None
@@ -249,3 +252,31 @@ class DashboardOut(BaseModel):
     weekly_schedule: List[CourseScheduleOut]
     recent_lessons: List[LessonRecordOut]
     low_stock_instruments: List[InstrumentOut]
+
+class SubstituteRequestOut(BaseModel):
+    id: int
+    schedule_id: int
+    original_teacher_id: int
+    substitute_teacher_id: Optional[int] = None
+    start_date: date
+    end_date: date
+    reason: str
+    status: str
+    remark: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    schedule: Optional[CourseScheduleOut] = None
+    original_teacher: Optional[TeacherOut] = None
+    substitute_teacher: Optional[TeacherOut] = None
+    class Config:
+        from_attributes = True
+
+class SubstituteRequestCreate(BaseModel):
+    schedule_id: int
+    start_date: date
+    end_date: date
+    reason: str
+
+class SubstituteRequestAssign(BaseModel):
+    substitute_teacher_id: int
+    remark: Optional[str] = None

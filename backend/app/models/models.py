@@ -100,12 +100,14 @@ class LessonRecord(Base):
     __tablename__ = 'lesson_records'
     id = Column(Integer, primary_key=True, index=True)
     enrollment_id = Column(Integer, ForeignKey('enrollments.id'))
+    substitute_request_id = Column(Integer, ForeignKey('substitute_requests.id'), nullable=True)
     lesson_date = Column(Date, nullable=False)
     status = Column(String(20), default='attended')
     content = Column(Text)
     homework = Column(Text)
     created_at = Column(DateTime, default=datetime.now)
     enrollment = relationship('Enrollment')
+    substitute_request = relationship('SubstituteRequest')
 
 class ExamRecord(Base):
     __tablename__ = 'exam_records'
@@ -134,3 +136,20 @@ class Instrument(Base):
     price = Column(Numeric(10, 2), default=0)
     remark = Column(Text)
     created_at = Column(DateTime, default=datetime.now)
+
+class SubstituteRequest(Base):
+    __tablename__ = 'substitute_requests'
+    id = Column(Integer, primary_key=True, index=True)
+    schedule_id = Column(Integer, ForeignKey('course_schedules.id'))
+    original_teacher_id = Column(Integer, ForeignKey('teachers.id'))
+    substitute_teacher_id = Column(Integer, ForeignKey('teachers.id'), nullable=True)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=False)
+    reason = Column(Text, nullable=False)
+    status = Column(String(20), default='pending')
+    remark = Column(Text)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    schedule = relationship('CourseSchedule')
+    original_teacher = relationship('Teacher', foreign_keys=[original_teacher_id])
+    substitute_teacher = relationship('Teacher', foreign_keys=[substitute_teacher_id])

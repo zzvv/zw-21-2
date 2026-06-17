@@ -16,6 +16,7 @@ const routes = [
       { path: 'schedules', component: () => import('../views/Schedules.vue') },
       { path: 'enrollments', component: () => import('../views/Enrollments.vue') },
       { path: 'lesson-records', component: () => import('../views/LessonRecords.vue') },
+      { path: 'substitute-requests', component: () => import('../views/SubstituteRequests.vue') },
       { path: 'exams', component: () => import('../views/Exams.vue') },
       { path: 'instruments', component: () => import('../views/Instruments.vue') },
       { path: 'users', component: () => import('../views/Users.vue') },

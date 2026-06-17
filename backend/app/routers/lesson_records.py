@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date
 from app.core.database import get_db
-from app.models.models import LessonRecord
+from app.models.models import LessonRecord, SubstituteRequest, Course, Enrollment
 from app.schemas.schemas import LessonRecordOut, LessonRecordCreate
 from app.routers.auth import get_current_user, require_role
 
@@ -20,6 +20,32 @@ def list_records(enrollment_id: Optional[int] = None, start: Optional[date] = No
 @router.post("", response_model=LessonRecordOut)
 def create_record(data: LessonRecordCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     r = LessonRecord(**data.dict()); db.add(r); db.commit(); db.refresh(r); return r
+
+@router.get("/teacher/{tid}/hours")
+def get_teacher_monthly_hours(tid: int, year: int, month: int, db: Session = Depends(get_db), _=require_role("admin", "manager")):
+    from sqlalchemy import func, extract
+    q = db.query(
+        func.count(LessonRecord.id).label('total_lessons'),
+        func.sum(Course.duration_minutes).label('total_minutes')
+    ).join(LessonRecord.enrollment).join(Enrollment.course)
+    q = q.filter(
+        extract('year', LessonRecord.lesson_date) == year,
+        extract('month', LessonRecord.lesson_date) == month
+    )
+    subq = db.query(SubstituteRequest.id).filter(SubstituteRequest.substitute_teacher_id == tid).subquery()
+    q = q.filter(
+        (Enrollment.course.has(teacher_id=tid)) |
+        (LessonRecord.substitute_request_id.in_(subq))
+    )
+    result = q.first()
+    return {
+        'teacher_id': tid,
+        'year': year,
+        'month': month,
+        'total_lessons': result.total_lessons or 0,
+        'total_minutes': result.total_minutes or 0,
+        'total_hours': round((result.total_minutes or 0) / 60, 2)
+    }
 
 @router.put("/{rid}", response_model=LessonRecordOut)
 def update_record(rid: int, data: LessonRecordCreate, db: Session = Depends(get_db), _=require_role("admin", "manager", "teacher")):

@@ -14,6 +14,7 @@
         <el-menu-item index="/schedules"><el-icon><Calendar /></el-icon><span>排课管理</span></el-menu-item>
         <el-menu-item index="/enrollments"><el-icon><Tickets /></el-icon><span>报名管理</span></el-menu-item>
         <el-menu-item index="/lesson-records"><el-icon><Document /></el-icon><span>上课记录</span></el-menu-item>
+        <el-menu-item index="/substitute-requests"><el-icon><UserSwitch /></el-icon><span>代课申请</span></el-menu-item>
         <el-menu-item index="/exams"><el-icon><Medal /></el-icon><span>考级管理</span></el-menu-item>
         <el-menu-item index="/instruments"><el-icon><Headset /></el-icon><span>乐器管理</span></el-menu-item>
         <el-menu-item index="/users" v-if="userStore.isAdmin"><el-icon><Setting /></el-icon><span>用户管理</span></el-menu-item>
@@ -51,6 +52,7 @@ const pageTitle = computed(() => {
     '/schedules': '排课管理',
     '/enrollments': '报名管理',
     '/lesson-records': '上课记录',
+    '/substitute-requests': '代课申请',
     '/exams': '考级管理',
     '/instruments': '乐器管理',
     '/users': '用户管理',

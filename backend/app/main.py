@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import engine, Base
-from app.routers import auth, users, teachers, students, courses, classrooms, schedules, enrollments, lesson_records, exams, instruments, dashboard
+from app.routers import auth, users, teachers, students, courses, classrooms, schedules, enrollments, lesson_records, exams, instruments, dashboard, substitute_requests
 
 Base.metadata.create_all(bind=engine)
 
@@ -27,6 +27,7 @@ app.include_router(lesson_records.router, prefix="/api/lesson-records", tags=["�
 app.include_router(exams.router, prefix="/api/exams", tags=["考级"])
 app.include_router(instruments.router, prefix="/api/instruments", tags=["乐器"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["看板"])
+app.include_router(substitute_requests.router, prefix="/api/substitute-requests", tags=["代课申请"])
 
 @app.get("/")
 def root():
