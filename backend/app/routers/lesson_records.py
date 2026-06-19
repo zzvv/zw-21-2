@@ -32,10 +32,9 @@ def get_teacher_monthly_hours(tid: int, year: int, month: int, db: Session = Dep
         extract('year', LessonRecord.lesson_date) == year,
         extract('month', LessonRecord.lesson_date) == month
     )
-    subq = db.query(SubstituteRequest.id).filter(SubstituteRequest.substitute_teacher_id == tid).subquery()
     q = q.filter(
-        (Enrollment.course.has(teacher_id=tid)) |
-        (LessonRecord.substitute_request_id.in_(subq))
+        (LessonRecord.actual_teacher_id == tid) |
+        ((LessonRecord.actual_teacher_id == None) & (Enrollment.course.has(teacher_id=tid)))
     )
     result = q.first()
     return {
@@ -46,6 +45,21 @@ def get_teacher_monthly_hours(tid: int, year: int, month: int, db: Session = Dep
         'total_minutes': result.total_minutes or 0,
         'total_hours': round((result.total_minutes or 0) / 60, 2)
     }
+
+@router.get("/monthly-summary")
+def get_monthly_lesson_summary(year: int, month: int, db: Session = Depends(get_db), _=require_role("admin", "manager")):
+    from sqlalchemy import func, extract
+    records = db.query(LessonRecord, Course).join(LessonRecord.enrollment).join(Enrollment.course).filter(
+        extract('year', LessonRecord.lesson_date) == year,
+        extract('month', LessonRecord.lesson_date) == month
+    ).all()
+    summary = {}
+    for record, course in records:
+        tid = record.actual_teacher_id if record.actual_teacher_id else course.teacher_id
+        summary[tid] = summary.get(tid, {'total_lessons': 0, 'total_minutes': 0})
+        summary[tid]['total_lessons'] += 1
+        summary[tid]['total_minutes'] += course.duration_minutes
+    return [{'teacher_id': k, 'total_lessons': v['total_lessons'], 'total_minutes': v['total_minutes'], 'total_hours': round(v['total_minutes'] / 60, 2)} for k, v in summary.items()]
 
 @router.put("/{rid}", response_model=LessonRecordOut)
 def update_record(rid: int, data: LessonRecordCreate, db: Session = Depends(get_db), _=require_role("admin", "manager", "teacher")):

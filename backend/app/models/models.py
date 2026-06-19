@@ -101,6 +101,7 @@ class LessonRecord(Base):
     id = Column(Integer, primary_key=True, index=True)
     enrollment_id = Column(Integer, ForeignKey('enrollments.id'))
     substitute_request_id = Column(Integer, ForeignKey('substitute_requests.id'), nullable=True)
+    actual_teacher_id = Column(Integer, ForeignKey('teachers.id'), nullable=True)
     lesson_date = Column(Date, nullable=False)
     status = Column(String(20), default='attended')
     content = Column(Text)
@@ -108,6 +109,7 @@ class LessonRecord(Base):
     created_at = Column(DateTime, default=datetime.now)
     enrollment = relationship('Enrollment')
     substitute_request = relationship('SubstituteRequest')
+    actual_teacher = relationship('Teacher', foreign_keys=[actual_teacher_id])
 
 class ExamRecord(Base):
     __tablename__ = 'exam_records'

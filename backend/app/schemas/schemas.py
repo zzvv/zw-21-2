@@ -163,6 +163,7 @@ class LessonRecordOut(BaseModel):
     id: int
     enrollment_id: int
     substitute_request_id: Optional[int] = None
+    actual_teacher_id: Optional[int] = None
     lesson_date: date
     status: str
     content: Optional[str] = None
@@ -170,12 +171,14 @@ class LessonRecordOut(BaseModel):
     created_at: datetime
     enrollment: Optional[EnrollmentOut] = None
     substitute_request: Optional[SubstituteRequestOut] = None
+    actual_teacher: Optional[TeacherOut] = None
     class Config:
         from_attributes = True
 
 class LessonRecordCreate(BaseModel):
     enrollment_id: int
     substitute_request_id: Optional[int] = None
+    actual_teacher_id: Optional[int] = None
     lesson_date: date
     status: str = "attended"
     content: Optional[str] = None
